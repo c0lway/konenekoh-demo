@@ -711,7 +711,7 @@ export function App() {
             </div>
 
             {/* Patient Cards List */}
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1 pb-20 scrollbar-thin">
+            <div className="flex-1 overflow-y-auto space-y-2.5 px-1.5 py-1 pb-24 scrollbar-thin">
               {loading ? (
                 <div className="text-center py-8 text-xs text-slate-400">Cargando pacientes...</div>
               ) : displayedPatients.length === 0 ? (
@@ -728,10 +728,10 @@ export function App() {
                         setSelectedPatientId(p.id);
                         setMobileView('detail');
                       }}
-                      className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
+                      className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between group ${
                         isSelected
-                          ? 'bg-white border-[#00b4d8] ring-2 ring-[#00b4d8]/30 shadow-sm scale-[1.01]'
-                          : 'bg-white/90 border-slate-200 hover:bg-white hover:border-cyan-300 hover:shadow-2xs'
+                          ? 'bg-gradient-to-r from-cyan-50/80 via-white to-white border-[#00b4d8] shadow-sm ring-1 ring-[#00b4d8]/20'
+                          : 'bg-white border-slate-200 hover:border-cyan-300 hover:shadow-2xs'
                       }`}
                     >
                       <div className="flex items-center space-x-3 min-w-0">
@@ -747,7 +747,9 @@ export function App() {
                         </div>
 
                         <div className="min-w-0">
-                          <div className="text-xs font-black text-slate-900 truncate group-hover:text-cyan-800">
+                          <div className={`text-xs font-black truncate ${
+                            isSelected ? 'text-[#0077b6]' : 'text-slate-900 group-hover:text-cyan-800'
+                          }`}>
                             {p.nombre}
                           </div>
                           <div className="flex items-center space-x-1.5 mt-1 flex-wrap gap-y-0.5">
