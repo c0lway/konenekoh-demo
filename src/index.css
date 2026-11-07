@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#f0f9fa] text-slate-800 antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Print layout for Presupuestos and Recetas */
+@media print {
+  @page {
+    margin: 1cm;
+    size: auto;
+  }
+
+  body {
+    background-color: white !important;
+    color: #1e293b !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  header, aside, footer, .no-print, button, input[type="file"] {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Keep printable document contents cleanly displayed */
+  .printable-document, .printable-receta {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .shadow-sm, .shadow-md, .shadow-xl, .shadow-2xl {
+    box-shadow: none !important;
+  }
+
+  /* Prevent page breaks inside critical blocks */
+  table, tr, td, th, .printable-document > div, .printable-receta > div {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
