@@ -230,20 +230,20 @@ export function App() {
       />
 
       {/* 1. TOP HEADER (Responsive, Clean & Uncluttered) */}
-      <header className="bg-white/95 backdrop-blur-md border-b border-cyan-100 shadow-2xs px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3 sticky top-0 z-40">
-        {/* Left: Mobile menu button & Brand (With guaranteed minimum width so it never truncates) */}
-        <div className="flex items-center space-x-3 shrink-0">
+      <header className="bg-white/95 backdrop-blur-md border-b border-cyan-100 shadow-2xs px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 sm:gap-3 sticky top-0 z-40">
+        {/* Left: Mobile menu button & Brand (With guaranteed responsive truncation) */}
+        <div className="flex items-center space-x-2.5 sm:space-x-3 shrink-0">
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-slate-600 hover:text-cyan-800 rounded-xl hover:bg-cyan-50"
+            className="md:hidden p-1.5 text-slate-600 hover:text-cyan-800 rounded-xl hover:bg-cyan-50"
             title="Abrir menú"
           >
             <Menu size={22} />
           </button>
 
           <div
-            className="flex items-center space-x-2.5 cursor-pointer group"
+            className="flex items-center space-x-2.5 cursor-pointer group shrink-0"
             onClick={() => setActiveSection('dashboard')}
             title="Ir al Dashboard Principal"
           >
@@ -251,18 +251,18 @@ export function App() {
               <img
                 src={clinicaConfig.logotipo_url}
                 alt={clinicaConfig.nombre_comercial}
-                className="w-10 h-10 rounded-2xl object-contain bg-white p-1 border border-cyan-200 shadow-2xs group-hover:scale-105 transition-transform shrink-0"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl object-contain bg-white p-1 border border-cyan-200 shadow-2xs group-hover:scale-105 transition-transform shrink-0"
               />
             ) : (
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#00b4d8] to-[#2ec4b6] flex items-center justify-center text-white shadow-2xs font-black text-xl group-hover:scale-105 transition-transform shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-[#00b4d8] to-[#2ec4b6] flex items-center justify-center text-white shadow-2xs font-black text-lg sm:text-xl group-hover:scale-105 transition-transform shrink-0">
                 🪐
               </div>
             )}
-            <div className="hidden xs:block min-w-0">
-              <h1 className="text-base md:text-lg font-black tracking-tight text-[#0f4c5c] leading-tight whitespace-nowrap">
+            <div className="hidden xs:block min-w-0 max-w-[120px] sm:max-w-[170px] md:max-w-[240px]">
+              <h1 className="text-sm sm:text-base md:text-lg font-black tracking-tight text-[#0f4c5c] leading-tight truncate">
                 {clinicaConfig.nombre_comercial}
               </h1>
-              <p className="text-[10px] md:text-[11px] font-bold text-[#2ec4b6] tracking-wider uppercase whitespace-nowrap">
+              <p className="text-[10px] md:text-[11px] font-bold text-[#2ec4b6] tracking-wider uppercase truncate">
                 {clinicaConfig.eslogan || 'Smile Maker'}
               </p>
             </div>
@@ -270,7 +270,7 @@ export function App() {
         </div>
 
         {/* Center-Left: Location Selector Pill */}
-        <div className="hidden sm:flex items-center space-x-1.5 bg-slate-100/90 hover:bg-slate-200/80 border border-slate-200/90 rounded-2xl px-2.5 py-1.5 shadow-2xs transition-colors shrink-0">
+        <div className="hidden sm:flex items-center space-x-1.5 bg-slate-100/90 hover:bg-slate-200/80 border border-slate-200/90 rounded-2xl px-2.5 py-1.5 shadow-2xs transition-colors shrink-0 max-w-[140px] md:max-w-[190px]">
           <Building2 size={15} className="text-purple-600 shrink-0" />
           <select
             value={activeLocationFilter}
@@ -278,7 +278,7 @@ export function App() {
               const val = e.target.value === 'all' ? 'all' : Number(e.target.value);
               handleLocationChange(val);
             }}
-            className="bg-transparent text-xs font-bold text-slate-700 cursor-pointer focus:outline-none pr-1"
+            className="bg-transparent text-xs font-bold text-slate-700 cursor-pointer focus:outline-none pr-1 truncate w-full"
             title="Seleccionar Sede o Red Completa"
           >
             <option value="all">🌐 Red Completa ({locations.length} Sedes)</option>
@@ -291,30 +291,30 @@ export function App() {
         </div>
 
         {/* Center: Global Search Bar */}
-        <div className="flex-1 max-w-xs sm:max-w-md mx-2">
+        <div className="flex-1 min-w-[110px] max-w-xs sm:max-w-md mx-1 sm:mx-2">
           <div className="relative">
             <Search className="absolute left-3 top-2.5 text-cyan-600" size={15} />
             <input
               type="text"
-              placeholder="Buscar paciente por nombre, folio o tel..."
+              placeholder="Buscar paciente por nombre o folio..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 bg-[#f0f9fa] hover:bg-white focus:bg-white border border-cyan-200 rounded-full text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2ec4b6] transition-all shadow-2xs"
+              className="w-full pl-9 pr-3 py-1.5 bg-[#f0f9fa] hover:bg-white focus:bg-white border border-cyan-200 rounded-full text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2ec4b6] transition-all shadow-2xs truncate"
             />
           </div>
         </div>
 
         {/* Right: Primary Action [+ Paciente] & User Profile Avatar Dropdown */}
-        <div className="flex items-center space-x-2 sm:space-x-3 shrink-0 relative">
+        <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0 relative">
           {/* Read-Only mode alert badge (if expired) */}
           {licenciaStatus.isReadOnly && (
             <button
               type="button"
               onClick={() => setShowLicenciaModal(true)}
-              className="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-300 rounded-xl text-xs font-black flex items-center space-x-1 animate-pulse"
+              className="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-300 rounded-xl text-xs font-black flex items-center space-x-1 animate-pulse shrink-0"
               title="Modo Consulta Activo. Haz clic para renovar licencia."
             >
-              <Lock size={12} className="text-rose-600" />
+              <Lock size={12} className="text-rose-600 shrink-0" />
               <span className="hidden sm:inline">Modo Consulta</span>
             </button>
           )}
@@ -329,7 +329,7 @@ export function App() {
                 setShowNewPatientModal(true);
               }
             }}
-            className={`px-3 sm:px-4 py-2 text-xs font-black rounded-xl shadow-xs transition-all flex items-center space-x-1.5 active:scale-95 ${
+            className={`px-3 sm:px-4 py-2 text-xs font-black rounded-xl shadow-xs transition-all flex items-center space-x-1.5 active:scale-95 shrink-0 ${
               licenciaStatus.isReadOnly
                 ? 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                 : 'bg-gradient-to-r from-[#0077b6] to-[#0096c7] hover:from-[#023e8a] hover:to-[#0077b6] text-white shadow-cyan-900/10'
@@ -337,27 +337,28 @@ export function App() {
             title={licenciaStatus.isReadOnly ? 'Requiere licencia activa para crear pacientes' : 'Registrar nuevo paciente'}
           >
             {licenciaStatus.isReadOnly ? <Lock size={14} className="text-amber-600" /> : <UserPlus size={15} />}
-            <span>+ Paciente</span>
+            <span className="hidden xs:inline">+ Paciente</span>
+            <span className="xs:hidden">+</span>
           </button>
 
           {/* User Profile Avatar with Floating Dropdown */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="flex items-center space-x-2 p-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all text-left"
+              className="flex items-center space-x-2 p-1 sm:px-2 sm:py-1.5 rounded-xl hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all text-left shrink-0"
               title="Perfil de Usuario y Configuración"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0f4c5c] to-teal-600 flex items-center justify-center text-white font-black text-xs shadow-2xs shrink-0">
                 DR
               </div>
-              <div className="hidden lg:block text-left">
+              <div className="hidden xl:block text-left">
                 <span className="block text-xs font-bold text-slate-800 leading-tight">Dr. Aguilar</span>
                 <span className="block text-[10px] text-teal-600 font-semibold">
                   {licenciaStatus.isReadOnly ? '🔒 Licencia Vencida' : '⚡ Licencia Activa'}
                 </span>
               </div>
-              <ChevronDown size={14} className="text-slate-400 hidden sm:block" />
+              <ChevronDown size={14} className="text-slate-400 hidden sm:block shrink-0" />
             </button>
 
             {/* Floating Dropdown Menu */}
@@ -459,7 +460,8 @@ export function App() {
         {/* Left Column: Navigation Sidebar (Desktop & Collapsible Mobile) */}
         <aside className={`
           ${mobileMenuOpen ? 'fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl block' : 'hidden md:flex'}
-          w-full md:w-56 bg-white border-r border-cyan-100 flex-col p-3 space-y-4 shrink-0 overflow-y-auto
+          w-full md:w-56 lg:w-60 bg-white border-r border-cyan-100 flex-col p-3 space-y-4 shrink-0
+          md:h-[calc(100vh-61px)] overflow-y-auto pb-24 scrollbar-thin
         `}>
           {mobileMenuOpen && (
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 md:hidden">
@@ -631,7 +633,8 @@ export function App() {
         {activeSection !== 'consultas' && activeSection !== 'dashboard' && (
           <div className={`
             ${mobileView === 'detail' ? 'hidden md:flex' : 'flex'}
-            w-full md:w-80 bg-[#f4fafb] border-r border-cyan-100 flex-col p-3 shrink-0
+            w-full md:w-64 lg:w-72 xl:w-80 bg-[#f4fafb] border-r border-cyan-100 flex-col p-3 shrink-0
+            md:h-[calc(100vh-61px)] overflow-hidden
           `}>
             {/* Top Patient List Header */}
             <div className="flex items-center justify-between pb-3 mb-2 border-b border-cyan-200">
@@ -652,7 +655,7 @@ export function App() {
             </div>
 
             {/* Patient Cards List */}
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 pb-20 scrollbar-thin">
               {loading ? (
                 <div className="text-center py-8 text-xs text-slate-400">Cargando pacientes...</div>
               ) : patients.length === 0 ? (
@@ -736,7 +739,7 @@ export function App() {
 
         {/* Right Main Detail Workspace Panel (Responsive: full width on mobile) */}
         <main className={`
-          flex-1 p-3 sm:p-6 overflow-y-auto
+          flex-1 p-3 sm:p-5 md:p-6 overflow-y-auto md:h-[calc(100vh-61px)] min-w-0 pb-24 scrollbar-thin
           ${mobileView === 'list' && activeSection !== 'consultas' && activeSection !== 'dashboard' ? 'hidden md:block' : 'block'}
         `}>
           {/* Mobile Back Button */}
@@ -849,84 +852,86 @@ export function App() {
                 </div>
 
                 {/* 2. Menús del Paciente (Pestañas Internas que solicitó el usuario) */}
-                <div className="flex items-center overflow-x-auto p-1.5 bg-slate-50/70 border-t border-slate-100 gap-1.5 scrollbar-thin">
-                  <button
-                    type="button"
-                    onClick={() => setActiveSection('generales')}
-                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
-                      activeSection === 'generales'
-                        ? 'bg-[#0077b6] text-white shadow-xs'
-                        : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60'
-                    }`}
-                  >
-                    <User size={15} className={activeSection === 'generales' ? 'text-white' : 'text-cyan-700'} />
-                    <span>Datos Generales</span>
-                  </button>
+                <div className="border-t border-slate-100 bg-slate-50/80 p-1 sm:p-1.5 overflow-x-auto scrollbar-thin">
+                  <div className="flex items-center gap-1.5 min-w-max">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('generales')}
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                        activeSection === 'generales'
+                          ? 'bg-[#0077b6] text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+                      }`}
+                    >
+                      <User size={15} className={activeSection === 'generales' ? 'text-white' : 'text-cyan-700'} />
+                      <span>Datos Generales</span>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setActiveSection('presupuestos')}
-                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
-                      activeSection === 'presupuestos'
-                        ? 'bg-[#00b4d8] text-white shadow-xs'
-                        : 'text-slate-700 bg-white hover:bg-cyan-50 hover:text-cyan-800 border border-slate-200/60'
-                    }`}
-                  >
-                    <Wallet size={15} className={activeSection === 'presupuestos' ? 'text-white' : 'text-teal-600'} />
-                    <span>Odontograma & Presupuesto</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('presupuestos')}
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                        activeSection === 'presupuestos'
+                          ? 'bg-[#00b4d8] text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-cyan-50 hover:text-cyan-800 border border-slate-200/70'
+                      }`}
+                    >
+                      <Wallet size={15} className={activeSection === 'presupuestos' ? 'text-white' : 'text-teal-600'} />
+                      <span>Odontograma & Presupuesto</span>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setActiveSection('recetas')}
-                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
-                      activeSection === 'recetas'
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : 'text-slate-700 bg-white hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200/60'
-                    }`}
-                  >
-                    <Pill size={15} className={activeSection === 'recetas' ? 'text-white' : 'text-emerald-600'} />
-                    <span>Recetas Médicas</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('recetas')}
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                        activeSection === 'recetas'
+                          ? 'bg-emerald-600 text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200/70'
+                      }`}
+                    >
+                      <Pill size={15} className={activeSection === 'recetas' ? 'text-white' : 'text-emerald-600'} />
+                      <span>Recetas Médicas</span>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setActiveSection('antecedentes')}
-                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
-                      activeSection === 'antecedentes'
-                        ? 'bg-purple-600 text-white shadow-xs'
-                        : 'text-slate-700 bg-white hover:bg-purple-50 hover:text-purple-800 border border-slate-200/60'
-                    }`}
-                  >
-                    <Clipboard size={15} className={activeSection === 'antecedentes' ? 'text-white' : 'text-purple-600'} />
-                    <span>Historial Médico</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('antecedentes')}
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                        activeSection === 'antecedentes'
+                          ? 'bg-purple-600 text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-purple-50 hover:text-purple-800 border border-slate-200/70'
+                      }`}
+                    >
+                      <Clipboard size={15} className={activeSection === 'antecedentes' ? 'text-white' : 'text-purple-600'} />
+                      <span>Historial Médico</span>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setActiveSection('pagos')}
-                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
-                      activeSection === 'pagos'
-                        ? 'bg-teal-600 text-white shadow-xs'
-                        : 'text-slate-700 bg-white hover:bg-teal-50 hover:text-teal-800 border border-slate-200/60'
-                    }`}
-                  >
-                    <Banknote size={15} className={activeSection === 'pagos' ? 'text-white' : 'text-teal-600'} />
-                    <span>Estado de Cuenta & Pagos</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('pagos')}
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                        activeSection === 'pagos'
+                          ? 'bg-teal-600 text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-teal-50 hover:text-teal-800 border border-slate-200/70'
+                      }`}
+                    >
+                      <Banknote size={15} className={activeSection === 'pagos' ? 'text-white' : 'text-teal-600'} />
+                      <span>Estado de Cuenta & Pagos</span>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setActiveSection('notas')}
-                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
-                      activeSection === 'notas'
-                        ? 'bg-slate-700 text-white shadow-xs'
-                        : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-800 border border-slate-200/60'
-                    }`}
-                  >
-                    <MessageSquare size={15} className={activeSection === 'notas' ? 'text-white' : 'text-slate-600'} />
-                    <span>Notas de Evolución</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('notas')}
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                        activeSection === 'notas'
+                          ? 'bg-slate-700 text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-800 border border-slate-200/70'
+                      }`}
+                    >
+                      <MessageSquare size={15} className={activeSection === 'notas' ? 'text-white' : 'text-slate-600'} />
+                      <span>Notas de Evolución</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
