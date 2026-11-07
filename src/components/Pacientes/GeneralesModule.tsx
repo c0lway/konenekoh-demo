@@ -3,7 +3,8 @@ import { Patient, Location } from '../../types';
 import { api } from '../../services/api';
 import { 
   Edit2, Save, X, Phone, Mail, MapPin, Calendar, 
-  User, FileText, Check, Users, HeartHandshake, ShieldAlert, Building2
+  User, FileText, Check, Users, ShieldCheck, Building2,
+  Sparkles, AlertCircle, HeartHandshake, Home
 } from 'lucide-react';
 
 interface GeneralesModuleProps {
@@ -12,7 +13,11 @@ interface GeneralesModuleProps {
   onUpdatePatient: (updated: Patient) => void;
 }
 
-export const GeneralesModule: React.FC<GeneralesModuleProps> = ({ patient, locations = [], onUpdatePatient }) => {
+export const GeneralesModule: React.FC<GeneralesModuleProps> = ({ 
+  patient, 
+  locations = [], 
+  onUpdatePatient 
+}) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [formData, setFormData] = useState<Patient>({ ...patient });
   const [saving, setSaving] = useState<boolean>(false);
@@ -23,7 +28,6 @@ export const GeneralesModule: React.FC<GeneralesModuleProps> = ({ patient, locat
   const [tutorNombre, setTutorNombre] = useState<string>(patient.padre_tutor || '');
   const [tutorParentesco, setTutorParentesco] = useState<string>('Madre');
   const [tutorTelefono, setTutorTelefono] = useState<string>(patient.celular || '');
-  const [tutorNotas, setTutorNotas] = useState<string>('');
 
   useEffect(() => {
     setFormData({ ...patient });
@@ -83,74 +87,78 @@ export const GeneralesModule: React.FC<GeneralesModuleProps> = ({ patient, locat
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-slate-200/90 p-6 space-y-6 animate-in fade-in">
-      {/* Top Bar matching FileMaker Screenshot 1 + Conditional Padres Button for Minors */}
-      <div className="flex flex-wrap items-center justify-between pb-4 border-b border-slate-100 gap-3">
+    <div className="space-y-6 animate-in fade-in duration-200">
+      {/* 1. TOP SUMMARY & ACTION CONTROLS */}
+      <div className="bg-white rounded-3xl shadow-xs border border-slate-200 p-5 flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="bg-[#48cae4] text-slate-900 font-black text-sm px-4 py-1.5 rounded-full shadow-xs">
-            Expediente: {formData.expediente}
-          </span>
+          <div className="px-3.5 py-1.5 bg-cyan-50 border border-cyan-200 rounded-xl flex items-center space-x-1.5 shadow-2xs">
+            <span className="text-[10px] font-black text-cyan-700 uppercase tracking-wider">Expediente:</span>
+            <span className="text-xs font-mono font-black text-slate-900">{formData.expediente}</span>
+          </div>
 
-          <span className="bg-[#2ec4b6]/15 text-[#0f766e] font-bold text-xs px-3 py-1.5 rounded-xl border border-[#2ec4b6]/30">
-            RFC: {formData.rfc || 'Sin RFC'}
-          </span>
+          <div className="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-xl flex items-center space-x-1.5 text-xs font-bold text-slate-700">
+            <span>RFC:</span>
+            <span className="font-mono text-slate-900">{formData.rfc || 'Sin RFC'}</span>
+          </div>
 
-          {/* Location Badge */}
-          <span className="bg-purple-50 text-purple-800 font-bold text-xs px-3 py-1.5 rounded-xl border border-purple-200 flex items-center space-x-1 shadow-2xs">
+          {/* Sede Badge */}
+          <div className="px-3 py-1.5 bg-purple-50 text-purple-900 border border-purple-200 rounded-xl flex items-center space-x-1.5 text-xs font-bold shadow-2xs">
             <Building2 size={13} className="text-purple-600" />
-            <span>{formData.location_nombre || 'Matriz'}</span>
-          </span>
+            <span>{formData.location_nombre || 'Sede Matriz'}</span>
+          </div>
 
-          {/* Age & Pediatric Badge */}
+          {/* Pediatric Badge */}
           {isMinor ? (
-            <span className="bg-amber-100/80 text-amber-900 border border-amber-300 font-bold text-xs px-3 py-1.5 rounded-xl flex items-center space-x-1 shadow-2xs">
-              <span>👶 Menor de edad ({age} años)</span>
-            </span>
+            <div className="px-3 py-1.5 bg-amber-50 text-amber-900 border border-amber-300 rounded-xl flex items-center space-x-1 text-xs font-black shadow-2xs">
+              <span>👶 Menor de Edad ({age} años)</span>
+            </div>
           ) : (
-            <span className="bg-slate-100 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-xl">
-              Adulto ({age} años)
-            </span>
+            <div className="px-3 py-1.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold">
+              <span>Adulto ({age} años)</span>
+            </div>
           )}
 
-          {/* BOTÓN DE PADRES: Se muestra EXCLUSIVAMENTE cuando el paciente es MENOR DE EDAD */}
+          {/* Tutor Shortcut Button for Minors */}
           {isMinor && (
             <button
               type="button"
               onClick={() => setShowParentsModal(true)}
-              className="px-3.5 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1.5 hover:shadow hover:scale-[1.02]"
-              title="Ver o editar datos del Padre, Madre o Tutor Legal"
+              className="px-3 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1.5 active:scale-95"
             >
-              <Users size={15} />
+              <Users size={14} />
               <span>Padres ({formData.padre_tutor ? formData.padre_tutor.split(' ')[0] : 'Asignar'})</span>
             </button>
           )}
         </div>
 
+        {/* Action Buttons: Status Radio & Edit/Save */}
         <div className="flex items-center space-x-3">
-          {/* Active / Inactive Radio buttons */}
-          <div className="flex items-center space-x-3 text-xs font-bold text-slate-700 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-            <label className="flex items-center space-x-1.5 cursor-pointer">
-              <input
-                type="radio"
-                name="activo"
-                checked={formData.activo === 1}
-                disabled={!isEditing}
-                onChange={() => setFormData({ ...formData, activo: 1 })}
-                className="text-cyan-600 focus:ring-cyan-500"
-              />
-              <span className={formData.activo === 1 ? 'text-emerald-700' : ''}>Activo</span>
-            </label>
-            <label className="flex items-center space-x-1.5 cursor-pointer">
-              <input
-                type="radio"
-                name="activo"
-                checked={formData.activo === 0}
-                disabled={!isEditing}
-                onChange={() => setFormData({ ...formData, activo: 0 })}
-                className="text-cyan-600 focus:ring-cyan-500"
-              />
-              <span className={formData.activo === 0 ? 'text-rose-700' : ''}>Inactivo</span>
-            </label>
+          {/* Status Radio */}
+          <div className="flex items-center space-x-3 text-xs font-bold bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button
+              type="button"
+              disabled={!isEditing}
+              onClick={() => setFormData({ ...formData, activo: 1 })}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                formData.activo === 1
+                  ? 'bg-emerald-600 text-white shadow-2xs font-black'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Activo
+            </button>
+            <button
+              type="button"
+              disabled={!isEditing}
+              onClick={() => setFormData({ ...formData, activo: 0 })}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                formData.activo === 0
+                  ? 'bg-rose-600 text-white shadow-2xs font-black'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Inactivo
+            </button>
           </div>
 
           {/* Edit / Save Button */}
@@ -162,148 +170,202 @@ export const GeneralesModule: React.FC<GeneralesModuleProps> = ({ patient, locat
                   setFormData({ ...patient });
                   setIsEditing(false);
                 }}
-                className="p-2 text-slate-500 hover:bg-slate-100 rounded-xl text-xs font-semibold"
+                className="px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-bold border border-slate-200"
               >
-                <X size={18} />
+                Cancelar
               </button>
               <button
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="px-4 py-2 bg-[#2ec4b6] hover:bg-[#20a396] text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-sm"
+                className="px-4 py-2 bg-[#10b981] hover:bg-emerald-600 text-white text-xs font-black rounded-xl flex items-center space-x-1.5 shadow-xs transition-all active:scale-95"
               >
-                <Save size={16} />
-                <span>{saving ? 'Guardando...' : 'Guardar'}</span>
+                <Save size={15} />
+                <span>{saving ? 'Guardando...' : 'Guardar Cambios'}</span>
               </button>
             </div>
           ) : (
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-[#48cae4] hover:bg-[#00b4d8] text-slate-900 text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-sm transition-all"
+              className="px-4 py-2 bg-[#00b4d8] hover:bg-[#0096c7] text-white text-xs font-black rounded-xl flex items-center space-x-1.5 shadow-xs transition-all active:scale-95"
             >
-              <Edit2 size={15} />
-              <span>Editar</span>
+              <Edit2 size={14} />
+              <span>Editar Datos</span>
             </button>
           )}
         </div>
       </div>
 
       {saveSuccess && (
-        <div className="bg-emerald-50 text-emerald-800 text-xs font-bold p-3 rounded-xl border border-emerald-200 flex items-center animate-in fade-in">
-          <Check size={16} className="mr-2" /> Datos generales del paciente actualizados con éxito.
+        <div className="bg-emerald-50 text-emerald-800 text-xs font-bold p-3.5 rounded-2xl border border-emerald-200 flex items-center shadow-xs animate-in fade-in">
+          <Check size={18} className="mr-2 text-emerald-600" />
+          <span>Datos generales del paciente actualizados con éxito.</span>
         </div>
       )}
 
-      {/* Minor Patient Notice Banner with Parents button */}
-      {isMinor && (
-        <div className="bg-gradient-to-r from-amber-50/90 to-amber-100/60 p-4 rounded-2xl border border-amber-200 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-800 flex items-center justify-center font-bold">
-              <Users size={22} />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-black text-amber-950 uppercase tracking-wide">
-                  Tutor Legal Asignado
-                </span>
-                <span className="text-[10px] font-bold bg-amber-200/70 text-amber-800 px-2 py-0.2 rounded-full">
-                  Odontopediatría
-                </span>
-              </div>
-              <p className="text-xs font-semibold text-slate-700">
-                {formData.padre_tutor ? (
-                  <span>{formData.padre_tutor} • Tel: {formData.celular || 'Sin teléfono'}</span>
-                ) : (
-                  <span className="text-amber-700 italic">No se ha asignado un padre o tutor legal a este menor.</span>
-                )}
-              </p>
-            </div>
+      {/* 2. SECTION 1: PERSONAL & DEMOGRAPHIC INFORMATION */}
+      <div className="bg-white rounded-3xl shadow-xs border border-slate-200 p-6 space-y-4">
+        <div className="flex items-center space-x-2.5 pb-3 border-b border-slate-100">
+          <div className="w-8 h-8 rounded-xl bg-cyan-100 text-cyan-800 flex items-center justify-center font-bold">
+            <User size={16} />
           </div>
-
-          <button
-            type="button"
-            onClick={() => setShowParentsModal(true)}
-            className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-xl shadow-xs flex items-center space-x-1.5 transition-all"
-          >
-            <Users size={14} />
-            <span>Gestionar Padres / Tutor</span>
-          </button>
+          <div>
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+              Información Personal & Demográfica
+            </h3>
+            <p className="text-[11px] text-slate-500">
+              Filiación básica del paciente, fecha de nacimiento y edad biológica
+            </p>
+          </div>
         </div>
-      )}
 
-      {/* Form Fields arranged exactly like FileMaker Screenshot 1 */}
-      <div className="space-y-6">
-        {/* Row 1: Nombre, Fecha Nacimiento, Edad, Lugar de Nacimiento */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div className="md:col-span-5">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              Nombre Completo
+          {/* Nombre Completo */}
+          <div className="md:col-span-6 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Nombre Completo del Paciente *
             </label>
             {isEditing ? (
               <input
                 type="text"
                 value={formData.nombre}
                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                className="w-full text-sm font-semibold p-2.5 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
+                className="w-full text-xs font-bold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
               />
             ) : (
-              <div className="text-base font-bold text-slate-900 border-b border-slate-300 pb-1.5 pt-1">
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-black text-slate-900">
                 {formData.nombre}
               </div>
             )}
           </div>
 
-          <div className="md:col-span-3">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              Fecha Nacimiento
+          {/* Fecha Nacimiento */}
+          <div className="md:col-span-3 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Fecha de Nacimiento *
             </label>
             {isEditing ? (
               <input
                 type="date"
                 value={formData.fecha_nacimiento}
                 onChange={(e) => setFormData({ ...formData, fecha_nacimiento: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
+                className="w-full text-xs font-bold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
               />
             ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 font-mono">
                 {formData.fecha_nacimiento || 'No registrada'}
               </div>
             )}
           </div>
 
-          <div className="md:col-span-1">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              Edad
+          {/* Edad Calculada */}
+          <div className="md:col-span-3 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Edad Biológica
             </label>
-            <div className="text-sm font-black text-cyan-800 border-b border-slate-300 pb-1.5 pt-1">
-              {age}
+            <div className="p-2.5 bg-cyan-50/60 border border-cyan-200 rounded-xl text-xs font-black text-cyan-900 flex items-center justify-between">
+              <span>{age} años cumplidos</span>
+              {isMinor && <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">Pediátrico</span>}
             </div>
           </div>
 
-          <div className="md:col-span-3">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              Lugar Nacimiento
+          {/* Lugar de Nacimiento */}
+          <div className="md:col-span-4 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Lugar de Nacimiento
             </label>
             {isEditing ? (
               <input
                 type="text"
+                placeholder="Ej. Querétaro, Qro."
                 value={formData.lugar_nacimiento}
                 onChange={(e) => setFormData({ ...formData, lugar_nacimiento: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
+                className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
               />
             ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
-                {formData.lugar_nacimiento || '-'}
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
+                {formData.lugar_nacimiento || 'Sin especificar'}
+              </div>
+            )}
+          </div>
+
+          {/* RFC / Identificación */}
+          <div className="md:col-span-4 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              RFC o CURP
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                placeholder="RFC del paciente o tutor"
+                value={formData.rfc || ''}
+                onChange={(e) => setFormData({ ...formData, rfc: e.target.value })}
+                className="w-full text-xs font-mono font-bold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
+              />
+            ) : (
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-800">
+                {formData.rfc || 'Sin RFC registrado'}
+              </div>
+            )}
+          </div>
+
+          {/* Tutor asignado */}
+          <div className="md:col-span-4 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+              <span>Padre o Tutor Legal</span>
+              {isMinor && (
+                <button
+                  type="button"
+                  onClick={() => setShowParentsModal(true)}
+                  className="text-cyan-700 hover:underline text-[10px] font-bold"
+                >
+                  Gestionar
+                </button>
+              )}
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                placeholder="Nombre del tutor legal"
+                value={formData.padre_tutor}
+                onChange={(e) => setFormData({ ...formData, padre_tutor: e.target.value })}
+                className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
+              />
+            ) : (
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 flex items-center justify-between">
+                <span>{formData.padre_tutor || (isMinor ? '⚠️ Sin tutor asignado' : 'No aplica')}</span>
+                {isMinor && formData.padre_tutor && (
+                  <span className="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.2 rounded-md font-black">
+                    Tutor
+                  </span>
+                )}
               </div>
             )}
           </div>
         </div>
+      </div>
 
-        {/* Row 2: Calle, Núm Exterior, Núm Interior */}
+      {/* 3. SECTION 2: ADDRESS & DOMICILE */}
+      <div className="bg-white rounded-3xl shadow-xs border border-slate-200 p-6 space-y-4">
+        <div className="flex items-center space-x-2.5 pb-3 border-b border-slate-100">
+          <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center font-bold">
+            <Home size={16} />
+          </div>
+          <div>
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+              Domicilio & Ubicación del Paciente
+            </h3>
+            <p className="text-[11px] text-slate-500">
+              Dirección para entrega de recibos, presupuestos y notificaciones de citas
+            </p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div className="md:col-span-6">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+          {/* Calle */}
+          <div className="md:col-span-6 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Calle
             </label>
             {isEditing ? (
@@ -311,56 +373,56 @@ export const GeneralesModule: React.FC<GeneralesModuleProps> = ({ patient, locat
                 type="text"
                 value={formData.calle}
                 onChange={(e) => setFormData({ ...formData, calle: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
+                className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
               />
             ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
-                {formData.calle || '-'}
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
+                {formData.calle || 'Sin calle'}
               </div>
             )}
           </div>
 
-          <div className="md:col-span-3">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              Núm Exterior
+          {/* Num Exterior */}
+          <div className="md:col-span-3 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Núm. Exterior
             </label>
             {isEditing ? (
               <input
                 type="text"
                 value={formData.num_exterior}
                 onChange={(e) => setFormData({ ...formData, num_exterior: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
+                className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
               />
             ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                 {formData.num_exterior || '-'}
               </div>
             )}
           </div>
 
-          <div className="md:col-span-3">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              Núm Interior
+          {/* Num Interior */}
+          <div className="md:col-span-3 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Núm. Interior
             </label>
             {isEditing ? (
               <input
                 type="text"
                 value={formData.num_interior}
                 onChange={(e) => setFormData({ ...formData, num_interior: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
+                className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
               />
             ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                 {formData.num_interior || '-'}
               </div>
             )}
           </div>
-        </div>
 
-        {/* Row 3: Colonia, Municipio, Estado */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+          {/* Colonia */}
+          <div className="md:col-span-4 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Colonia
             </label>
             {isEditing ? (
@@ -368,35 +430,37 @@ export const GeneralesModule: React.FC<GeneralesModuleProps> = ({ patient, locat
                 type="text"
                 value={formData.colonia}
                 onChange={(e) => setFormData({ ...formData, colonia: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
+                className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
               />
             ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                 {formData.colonia || '-'}
               </div>
             )}
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              Municipio
+          {/* Municipio */}
+          <div className="md:col-span-4 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Municipio / Alcaldía
             </label>
             {isEditing ? (
               <input
                 type="text"
                 value={formData.municipio}
                 onChange={(e) => setFormData({ ...formData, municipio: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
+                className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
               />
             ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                 {formData.municipio || '-'}
               </div>
             )}
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+          {/* Estado & CP */}
+          <div className="md:col-span-2 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Estado
             </label>
             {isEditing ? (
@@ -404,138 +468,148 @@ export const GeneralesModule: React.FC<GeneralesModuleProps> = ({ patient, locat
                 type="text"
                 value={formData.estado}
                 onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
+                className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
               />
             ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
                 {formData.estado || '-'}
               </div>
             )}
           </div>
-        </div>
 
-        {/* Row 4: C.P., Teléfono, Celular */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              C.P.
+          <div className="md:col-span-2 space-y-1">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Código Postal
             </label>
             {isEditing ? (
               <input
                 type="text"
                 value={formData.cp}
                 onChange={(e) => setFormData({ ...formData, cp: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
+                className="w-full text-xs font-mono font-bold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
               />
             ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
+              <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-800">
                 {formData.cp || '-'}
               </div>
             )}
           </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              Teléfono Fijo
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={formData.telefono}
-                onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
-              />
-            ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
-                {formData.telefono || '-'}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              Celular / WhatsApp
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={formData.celular}
-                onChange={(e) => setFormData({ ...formData, celular: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
-              />
-            ) : (
-              <div className="text-sm font-bold text-cyan-800 border-b border-slate-300 pb-1.5 pt-1">
-                {formData.celular || '-'}
-              </div>
-            )}
-          </div>
         </div>
+      </div>
 
-        {/* Row 5: Correo Electrónico & Tutor Legal */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-              Correo Electrónico
-            </label>
-            {isEditing ? (
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
-              />
-            ) : (
-              <div className="text-sm font-medium text-slate-800 border-b border-slate-300 pb-1.5 pt-1">
-                {formData.email || '-'}
-              </div>
-            )}
-          </div>
-
-          {/* Padre / Tutor (visible o editable) */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1 flex items-center justify-between">
-              <span>{isMinor ? 'Padre / Madre / Tutor Legal *' : 'Contacto de Emergencia / Familiar'}</span>
-              {isMinor && !isEditing && (
-                <button
-                  type="button"
-                  onClick={() => setShowParentsModal(true)}
-                  className="text-cyan-600 hover:underline text-[11px] font-bold"
-                >
-                  Editar Tutor
-                </button>
-              )}
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={formData.padre_tutor}
-                onChange={(e) => setFormData({ ...formData, padre_tutor: e.target.value })}
-                className="w-full text-sm p-2 border-b-2 border-cyan-500 bg-cyan-50/20 focus:outline-none"
-              />
-            ) : (
-              <div className="text-sm font-bold text-slate-800 border-b border-slate-300 pb-1.5 pt-1 flex items-center justify-between">
-                <span>{formData.padre_tutor || (isMinor ? '⚠️ Sin tutor asignado' : 'No asignado')}</span>
-                {isMinor && formData.padre_tutor && (
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
-                    Tutor Oficial
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Row 6: Sucursal / Ubicación Asignada */}
-        <div className="bg-gradient-to-r from-purple-50/60 to-indigo-50/40 p-4 rounded-2xl border border-purple-200/80">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+      {/* 4. SECTION 3: CONTACT & CLINICAL LOCATION */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Contact Information Card */}
+        <div className="bg-white rounded-3xl shadow-xs border border-slate-200 p-6 space-y-4">
+          <div className="flex items-center space-x-2.5 pb-3 border-b border-slate-100">
+            <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+              <Phone size={16} />
+            </div>
             <div>
-              <label className="block text-xs font-black text-purple-900 uppercase tracking-wide mb-1 flex items-center space-x-1.5">
-                <Building2 size={15} className="text-purple-600" />
-                <span>Clínica / Sucursal Asignada al Paciente</span>
-              </label>
-              <p className="text-[11px] text-purple-700/80 mb-2">
-                Define la sede para citas, expediente físico, almacén de insumos y reportes del paciente.
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+                Medios de Contacto
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                Teléfonos de recordatorio y notificaciones de WhatsApp
               </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {/* Celular con WhatsApp */}
+            <div className="space-y-1">
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Celular / WhatsApp *
+              </label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  placeholder="Ej. 442 123 4567"
+                  value={formData.celular}
+                  onChange={(e) => setFormData({ ...formData, celular: e.target.value })}
+                  className="w-full text-xs font-bold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
+                />
+              ) : (
+                <div className="p-2.5 bg-emerald-50/50 border border-emerald-200 rounded-xl text-xs font-black text-emerald-900 flex items-center justify-between">
+                  <span>{formData.celular || 'Sin celular registrado'}</span>
+                  {formData.celular && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const msg = `Hola ${formData.nombre}, le saludamos de KoneneKoh Dental.`;
+                        window.open(`https://wa.me/52${(formData.celular || '').replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+                      }}
+                      className="text-[11px] text-emerald-700 hover:text-emerald-900 font-bold underline"
+                    >
+                      Enviar WhatsApp
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Teléfono Fijo */}
+            <div className="space-y-1">
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Teléfono Fijo / Casa
+              </label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={formData.telefono}
+                  onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                  className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
+                />
+              ) : (
+                <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
+                  {formData.telefono || 'Sin teléfono fijo'}
+                </div>
+              )}
+            </div>
+
+            {/* Correo Electrónico */}
+            <div className="space-y-1">
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Correo Electrónico
+              </label>
+              {isEditing ? (
+                <input
+                  type="email"
+                  placeholder="paciente@correo.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]"
+                />
+              ) : (
+                <div className="p-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
+                  {formData.email || 'Sin correo registrado'}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Clinical Sede & Assignment Card */}
+        <div className="bg-white rounded-3xl shadow-xs border border-slate-200 p-6 space-y-4">
+          <div className="flex items-center space-x-2.5 pb-3 border-b border-slate-100">
+            <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center font-bold">
+              <Building2 size={16} />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+                Adscripción a Sucursal Dental
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                Clínica asignada para expediente, insumos y citas
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Sucursal Principal *
+              </label>
               {isEditing ? (
                 <select
                   value={formData.location_id || 1}
@@ -550,129 +624,109 @@ export const GeneralesModule: React.FC<GeneralesModuleProps> = ({ patient, locat
                       location_color: selLoc ? selLoc.color : formData.location_color
                     });
                   }}
-                  className="w-full text-xs font-bold p-2.5 border-2 border-purple-300 rounded-xl bg-white text-purple-950 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-2xs"
+                  className="w-full text-xs font-bold p-2.5 border border-purple-300 rounded-xl bg-purple-50/30 text-purple-950 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
-                  {locations.length > 0 ? (
-                    locations.map((loc) => (
-                      <option key={loc.id} value={loc.id}>
-                        📍 {loc.nombre} ({loc.codigo}) - {loc.direccion}
-                      </option>
-                    ))
-                  ) : (
-                    <option value={1}>KoneneKoh Corregidora (Matriz)</option>
-                  )}
+                  {locations.map((loc) => (
+                    <option key={loc.id} value={loc.id}>
+                      📍 {loc.nombre} ({loc.codigo})
+                    </option>
+                  ))}
                 </select>
               ) : (
-                <div className="flex items-center space-x-3 bg-white px-3.5 py-2.5 rounded-xl border border-purple-200 shadow-2xs">
-                  <div 
-                    className="w-3.5 h-3.5 rounded-full ring-2 ring-purple-200" 
-                    style={{ backgroundColor: formData.location_color || '#06b6d4' }}
+                <div className="p-3 bg-purple-50/50 border border-purple-200 rounded-xl flex items-center space-x-3">
+                  <div
+                    className="w-4 h-4 rounded-full ring-2 ring-purple-300 shrink-0"
+                    style={{ backgroundColor: formData.location_color || '#8b5cf6' }}
                   />
                   <div>
-                    <div className="text-xs font-extrabold text-slate-800 flex items-center space-x-2">
-                      <span>{formData.location_nombre || 'KoneneKoh Corregidora (Matriz)'}</span>
-                      {formData.location_codigo && (
-                        <span className="text-[10px] bg-purple-100 text-purple-700 font-black px-1.5 py-0.5 rounded">
-                          {formData.location_codigo}
-                        </span>
-                      )}
+                    <div className="text-xs font-black text-purple-950">
+                      {formData.location_nombre || 'KoneneKoh Sede Central'}
+                    </div>
+                    <div className="text-[10px] text-purple-700 font-semibold">
+                      Código: {formData.location_codigo || 'MATRIZ'}
                     </div>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="text-xs text-slate-600 bg-white/70 p-3 rounded-xl border border-purple-100">
-              <span className="font-bold text-slate-700 block mb-1">Información de la Sede:</span>
-              <p className="text-[11px] text-slate-500">
-                {locations.find(l => l.id === formData.location_id)?.direccion || 'Av. Constituyentes #120, Corregidora, Qro.'}
-              </p>
-              <p className="text-[11px] text-slate-500 font-mono mt-0.5">
-                Tel: {locations.find(l => l.id === formData.location_id)?.telefono || '442-123-4567'}
-              </p>
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5 text-xs">
+              <div className="flex items-center justify-between text-slate-500 font-semibold">
+                <span>Fecha de Alta:</span>
+                <span className="font-mono text-slate-800">{formData.created_at?.split('T')[0] || 'Registro Inicial'}</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-500 font-semibold">
+                <span>Estatus de Expediente:</span>
+                <span className={`font-black ${formData.activo === 1 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                  {formData.activo === 1 ? 'Vigente & Activo' : 'Expediente Inactivo'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* MODAL: GESTIÓN DE PADRES / TUTOR (Solo para Menores de Edad) */}
+      {/* 5. MODAL: GESTIÓN DE PADRES Y TUTORES */}
       {showParentsModal && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center space-x-2.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
-                  <Users size={20} />
+                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold">
+                  <Users size={16} />
                 </div>
-                <div>
-                  <h3 className="font-black text-base text-slate-800">Datos de los Padres / Tutor</h3>
-                  <p className="text-[11px] text-slate-500">Paciente menor: {formData.nombre} ({age} años)</p>
-                </div>
+                <h3 className="font-black text-base text-slate-800">Datos de Padres / Tutor Legal</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowParentsModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1"
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="space-y-3.5">
+            <div className="space-y-3">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
                   Nombre Completo del Padre, Madre o Tutor *
                 </label>
                 <input
                   type="text"
-                  placeholder="Ej. Sra. Mariana López"
+                  placeholder="Ej. María Elena Sánchez"
                   value={tutorNombre}
                   onChange={(e) => setTutorNombre(e.target.value)}
-                  className="w-full text-xs font-bold border border-slate-300 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full text-xs font-semibold p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                    Parentesco
-                  </label>
-                  <select
-                    value={tutorParentesco}
-                    onChange={(e) => setTutorParentesco(e.target.value)}
-                    className="w-full text-xs border border-slate-300 rounded-xl p-2.5 bg-white"
-                  >
-                    <option value="Madre">Madre</option>
-                    <option value="Padre">Padre</option>
-                    <option value="Tutor Legal">Tutor Legal</option>
-                    <option value="Abuelo/a">Abuelo / Abuela</option>
-                    <option value="Tío/a">Tío / Tía</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                    Teléfono Celular / WhatsApp
-                  </label>
-                  <input
-                    type="text"
-                    value={tutorTelefono}
-                    onChange={(e) => setTutorTelefono(e.target.value)}
-                    className="w-full text-xs border border-slate-300 rounded-xl p-2.5 font-mono"
-                  />
-                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Observaciones de Custodia / Autorización
+                  Parentesco
                 </label>
-                <textarea
-                  rows={2}
-                  placeholder="Autorizado para firmar presupuestos y consentimientos informados..."
-                  value={tutorNotas}
-                  onChange={(e) => setTutorNotas(e.target.value)}
-                  className="w-full text-xs border border-slate-300 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                <select
+                  value={tutorParentesco}
+                  onChange={(e) => setTutorParentesco(e.target.value)}
+                  className="w-full text-xs font-semibold p-2.5 border border-slate-300 rounded-xl bg-white"
+                >
+                  <option value="Madre">Madre</option>
+                  <option value="Padre">Padre</option>
+                  <option value="Tutor Legal">Tutor Legal</option>
+                  <option value="Abuelo/a">Abuelo / Abuela</option>
+                  <option value="Familiar">Familiar Responsable</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+                  Teléfono de Contacto Inmediato
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej. 442 987 6543"
+                  value={tutorTelefono}
+                  onChange={(e) => setTutorTelefono(e.target.value)}
+                  className="w-full text-xs font-semibold p-2.5 border border-slate-300 rounded-xl"
                 />
               </div>
             </div>
@@ -688,7 +742,8 @@ export const GeneralesModule: React.FC<GeneralesModuleProps> = ({ patient, locat
               <button
                 type="button"
                 onClick={handleSaveTutor}
-                className="px-5 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl shadow-sm"
+                disabled={saving}
+                className="px-5 py-2 text-xs font-black bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl shadow-xs"
               >
                 Guardar Tutor
               </button>

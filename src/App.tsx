@@ -19,7 +19,7 @@ import {
   Wallet, Banknote, MessageSquare, ShoppingBag, Info, Award,
   Package, Stethoscope, LogOut, Check, Trash2, X, Menu,
   ChevronLeft, ChevronDown, Sparkles, Phone, ShieldCheck, Building2, LayoutDashboard, Globe,
-  Settings, Pill, Store, Lock, Key, CreditCard, ShieldAlert
+  Settings, Pill, Store, Lock, Key, CreditCard, ShieldAlert, Mail
 } from 'lucide-react';
 
 export function App() {
@@ -29,6 +29,7 @@ export function App() {
   const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
   const [tratamientos, setTratamientos] = useState<Tratamiento[]>([]);
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
+  const [patientFilterType, setPatientFilterType] = useState<'all' | 'minors' | 'adults'>('all');
   const [licenciaStatus, setLicenciaStatus] = useState<LicenciaStatus>({
     hasLicense: true,
     valid: true,
@@ -156,6 +157,22 @@ export function App() {
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) a--;
     return a < 18;
   };
+
+  const calculatePatientAge = (birthDateStr?: string): number => {
+    if (!birthDateStr) return 0;
+    const birth = new Date(birthDateStr);
+    const today = new Date();
+    let a = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) a--;
+    return a > 0 ? a : 0;
+  };
+
+  const displayedPatients = patients.filter((p) => {
+    if (patientFilterType === 'minors' && !isMinorPatient(p.fecha_nacimiento)) return false;
+    if (patientFilterType === 'adults' && isMinorPatient(p.fecha_nacimiento)) return false;
+    return true;
+  });
 
   const handleCreatePatient = async () => {
     if (licenciaStatus.isReadOnly) {
@@ -633,37 +650,77 @@ export function App() {
         {activeSection !== 'consultas' && activeSection !== 'dashboard' && (
           <div className={`
             ${mobileView === 'detail' ? 'hidden md:flex' : 'flex'}
-            w-full md:w-64 lg:w-72 xl:w-80 bg-[#f4fafb] border-r border-cyan-100 flex-col p-3 shrink-0
+            w-full md:w-64 lg:w-72 xl:w-80 bg-[#f8fafc] border-r border-slate-200 flex-col p-3 shrink-0
             md:h-[calc(100vh-61px)] overflow-hidden
           `}>
-            {/* Top Patient List Header */}
-            <div className="flex items-center justify-between pb-3 mb-2 border-b border-cyan-200">
-              <div>
-                <span className="text-xs font-black uppercase tracking-wider text-cyan-900 block">
-                  Lista de Pacientes
-                </span>
-                {activeLocationFilter !== 'all' && (
-                  <span className="text-[10px] font-bold text-purple-700">
-                    📍 {locations.find(l => l.id === activeLocationFilter)?.nombre.replace('KoneneKoh ', '')}
+            {/* Top Patient List Header with Category Filter */}
+            <div className="pb-3 mb-2 border-b border-slate-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-800 block">
+                    Expedientes Clínicos
                   </span>
-                )}
+                  {activeLocationFilter !== 'all' && (
+                    <span className="text-[10px] font-bold text-purple-700">
+                      📍 {locations.find(l => l.id === activeLocationFilter)?.nombre.replace('KoneneKoh ', '')}
+                    </span>
+                  )}
+                </div>
+
+                <span className="text-[11px] font-black text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded-full">
+                  {displayedPatients.length} pacientes
+                </span>
               </div>
 
-              <span className="text-[11px] font-bold text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded-full">
-                {patients.length} pacientes
-              </span>
+              {/* Quick Category Filter Pills */}
+              <div className="grid grid-cols-3 gap-1 bg-slate-200/70 p-1 rounded-xl text-[10px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => setPatientFilterType('all')}
+                  className={`py-1 rounded-lg transition-all ${
+                    patientFilterType === 'all'
+                      ? 'bg-white text-slate-900 shadow-2xs font-black'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Todos ({patients.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPatientFilterType('minors')}
+                  className={`py-1 rounded-lg transition-all ${
+                    patientFilterType === 'minors'
+                      ? 'bg-white text-amber-900 shadow-2xs font-black'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  👶 Menores
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPatientFilterType('adults')}
+                  className={`py-1 rounded-lg transition-all ${
+                    patientFilterType === 'adults'
+                      ? 'bg-white text-slate-900 shadow-2xs font-black'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Adultos
+                </button>
+              </div>
             </div>
 
             {/* Patient Cards List */}
             <div className="flex-1 overflow-y-auto space-y-2 pr-1 pb-20 scrollbar-thin">
               {loading ? (
                 <div className="text-center py-8 text-xs text-slate-400">Cargando pacientes...</div>
-              ) : patients.length === 0 ? (
+              ) : displayedPatients.length === 0 ? (
                 <div className="text-center py-8 text-xs text-slate-400">No se encontraron pacientes.</div>
               ) : (
-                patients.map((p, idx) => {
+                displayedPatients.map((p) => {
                   const isSelected = p.id === selectedPatientId;
                   const isMinor = isMinorPatient(p.fecha_nacimiento);
+                  const patientAge = calculatePatientAge(p.fecha_nacimiento);
                   return (
                     <div
                       key={p.id}
@@ -671,52 +728,52 @@ export function App() {
                         setSelectedPatientId(p.id);
                         setMobileView('detail');
                       }}
-                      className={`p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
+                      className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
                         isSelected
-                          ? 'bg-white border-[#2ec4b6] ring-2 ring-[#2ec4b6]/30 shadow-md scale-[1.01]'
-                          : 'bg-white/80 border-slate-200 hover:bg-white hover:border-cyan-300'
+                          ? 'bg-white border-[#00b4d8] ring-2 ring-[#00b4d8]/30 shadow-sm scale-[1.01]'
+                          : 'bg-white/90 border-slate-200 hover:bg-white hover:border-cyan-300 hover:shadow-2xs'
                       }`}
                     >
                       <div className="flex items-center space-x-3 min-w-0">
-                        <span className="text-xs font-bold text-cyan-700 w-5 text-right font-mono">
-                          {28 + idx}
-                        </span>
-
                         <div className="relative shrink-0">
                           <img
                             src={p.foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200'}
                             alt={p.nombre}
-                            className="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-400 shadow-2xs"
+                            className="w-11 h-11 rounded-full object-cover ring-2 ring-slate-100 shadow-2xs"
                           />
+                          <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+                            p.activo === 1 ? 'bg-emerald-500' : 'bg-rose-500'
+                          }`} />
                         </div>
 
                         <div className="min-w-0">
-                          <div className="text-xs font-bold text-slate-800 truncate group-hover:text-cyan-800">
+                          <div className="text-xs font-black text-slate-900 truncate group-hover:text-cyan-800">
                             {p.nombre}
                           </div>
-                          <div className="flex items-center space-x-1.5 mt-0.5">
-                            <span className="text-[10px] font-bold bg-[#84cc16] text-white px-2 py-0.2 rounded-full">
-                              Activo
+                          <div className="flex items-center space-x-1.5 mt-1 flex-wrap gap-y-0.5">
+                            <span className="text-[10px] text-slate-500 font-mono font-bold bg-slate-100 px-1.5 py-0.2 rounded">
+                              #{p.expediente}
                             </span>
-                            {isMinor && (
-                              <span className="text-[9px] font-black bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.2 rounded-md">
-                                👶 Menor
+                            {isMinor ? (
+                              <span className="text-[9px] font-black bg-amber-50 text-amber-900 border border-amber-200 px-1.5 py-0.2 rounded">
+                                👶 {patientAge > 0 ? `${patientAge}a` : 'Menor'}
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded">
+                                {patientAge > 0 ? `${patientAge}a` : 'Adulto'}
                               </span>
                             )}
                             {p.location_codigo && (
                               <span 
-                                className="text-[9px] font-black px-1.5 py-0.2 rounded-md"
+                                className="text-[9px] font-black px-1.5 py-0.2 rounded"
                                 style={{ 
-                                  backgroundColor: `${p.location_color || '#8b5cf6'}20`, 
+                                  backgroundColor: `${p.location_color || '#8b5cf6'}18`, 
                                   color: p.location_color || '#7c3aed' 
                                 }}
                               >
                                 {p.location_codigo}
                               </span>
                             )}
-                            <span className="text-[10px] text-slate-400 font-mono">
-                              {p.expediente}
-                            </span>
                           </div>
                         </div>
                       </div>
@@ -724,10 +781,10 @@ export function App() {
                       <button
                         type="button"
                         onClick={(e) => handleDeletePatient(p.id, e)}
-                        className="p-1.5 text-cyan-600 hover:text-red-600 rounded-lg opacity-40 group-hover:opacity-100 transition-opacity"
+                        className="p-1.5 text-slate-300 hover:text-rose-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Eliminar paciente"
                       >
-                        <Trash2 size={15} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   );
@@ -789,27 +846,33 @@ export function App() {
           ) : selectedPatient ? (
             <div className="space-y-4 animate-in fade-in">
               {/* Header de Identificación del Paciente y Menú Interno de Pestañas */}
-              <div className="bg-white rounded-3xl border border-cyan-100 shadow-xs overflow-hidden">
-                {/* 1. Tarjeta Resumen del Paciente */}
-                <div className="p-3.5 sm:p-5 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-slate-50 via-cyan-50/25 to-white border-b border-cyan-100">
-                  <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+                {/* 1. Tarjeta Resumen del Paciente (Inspirado en la Tarjeta Médica de Referencia) */}
+                <div className="p-4 sm:p-6 flex flex-wrap items-center justify-between gap-4 bg-white border-b border-slate-100">
+                  <div className="flex items-center space-x-4 min-w-0">
                     <div className="relative shrink-0">
                       <img
                         src={selectedPatient.foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200'}
                         alt={selectedPatient.nombre}
-                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover ring-2 ring-emerald-400 shadow-2xs"
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover ring-4 ring-[#00b4d8]/20 shadow-md"
                       />
-                      <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
+                      <span className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-white ${
+                        selectedPatient.activo === 1 ? 'bg-emerald-500' : 'bg-rose-500'
+                      }`} />
                     </div>
 
                     <div className="min-w-0">
-                      <div className="flex items-center space-x-2 flex-wrap">
-                        <h2 className="text-base sm:text-lg font-black text-slate-800 leading-tight">
+                      <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                        <h2 className="text-lg sm:text-2xl font-black text-slate-900 leading-tight">
                           {selectedPatient.nombre}
                         </h2>
-                        {isMinorPatient(selectedPatient.fecha_nacimiento) && (
-                          <span className="text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-lg flex items-center space-x-1">
-                            <span>👶 Menor de Edad</span>
+                        {isMinorPatient(selectedPatient.fecha_nacimiento) ? (
+                          <span className="text-[10px] font-black bg-amber-50 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-lg flex items-center space-x-1 shadow-2xs">
+                            <span>👶 Menor ({calculatePatientAge(selectedPatient.fecha_nacimiento)} años)</span>
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-lg">
+                            Adulto ({calculatePatientAge(selectedPatient.fecha_nacimiento)} años)
                           </span>
                         )}
                         {selectedPatient.location_codigo && (
@@ -825,42 +888,107 @@ export function App() {
                         )}
                       </div>
 
-                      <div className="flex items-center space-x-3 text-xs text-slate-500 mt-1 flex-wrap">
-                        <span className="font-mono font-bold text-cyan-800 bg-cyan-100/70 px-2 py-0.5 rounded text-[11px]">
-                          {selectedPatient.expediente}
+                      <div className="flex items-center space-x-3 text-xs text-slate-500 mt-1.5 flex-wrap gap-y-1">
+                        <span className="font-mono font-bold text-cyan-800 bg-cyan-50 border border-cyan-200 px-2.5 py-0.5 rounded-lg text-xs">
+                          Expediente: #{selectedPatient.expediente}
                         </span>
                         {selectedPatient.telefono && (
-                          <span className="flex items-center space-x-1">
+                          <span className="flex items-center space-x-1 text-slate-600 font-semibold">
                             <Phone size={12} className="text-slate-400" />
                             <span>{selectedPatient.telefono}</span>
                           </span>
                         )}
                         {isMinorPatient(selectedPatient.fecha_nacimiento) && selectedPatient.padre_tutor && (
-                          <span className="text-[11px] text-amber-800 font-medium truncate max-w-xs sm:max-w-md">
+                          <span className="text-xs text-amber-900 font-bold truncate max-w-xs sm:max-w-md bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200">
                             👨‍👧 Tutor: {selectedPatient.padre_tutor}
                           </span>
+                        )}
+                      </div>
+
+                      {/* 3 Botones Circulares de Acción Rápida (Idénticos al diseño del especialista) */}
+                      <div className="flex items-center space-x-2 mt-3">
+                        {/* Green Phone Circle */}
+                        {selectedPatient.telefono ? (
+                          <a
+                            href={`tel:${selectedPatient.telefono.replace(/\D/g, '')}`}
+                            className="w-8 h-8 rounded-full bg-[#10b981] hover:bg-emerald-600 text-white flex items-center justify-center shadow-xs transition-transform hover:scale-110"
+                            title={`Llamar a ${selectedPatient.nombre} (${selectedPatient.telefono})`}
+                          >
+                            <Phone size={14} />
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => alert('No hay teléfono registrado para este paciente')}
+                            className="w-8 h-8 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center shadow-2xs opacity-60 cursor-not-allowed"
+                            title="Sin teléfono"
+                          >
+                            <Phone size={14} />
+                          </button>
+                        )}
+
+                        {/* Sky Blue WhatsApp Circle */}
+                        {selectedPatient.celular || selectedPatient.telefono ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const num = (selectedPatient.celular || selectedPatient.telefono || '').replace(/\D/g, '');
+                              const msg = `Hola ${selectedPatient.nombre}, le saludamos de KoneneKoh Smile Maker.`;
+                              window.open(`https://wa.me/52${num}?text=${encodeURIComponent(msg)}`, '_blank');
+                            }}
+                            className="w-8 h-8 rounded-full bg-[#00b4d8] hover:bg-[#0096c7] text-white flex items-center justify-center shadow-xs transition-transform hover:scale-110"
+                            title="Enviar mensaje por WhatsApp"
+                          >
+                            <MessageSquare size={14} />
+                          </button>
+                        ) : null}
+
+                        {/* Email Circle */}
+                        {selectedPatient.email && (
+                          <a
+                            href={`mailto:${selectedPatient.email}`}
+                            className="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-800 text-white flex items-center justify-center shadow-xs transition-transform hover:scale-110"
+                            title={`Enviar correo electrónico a ${selectedPatient.email}`}
+                          >
+                            <Mail size={14} />
+                          </a>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="hidden sm:flex items-center space-x-2">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 bg-slate-100 px-2.5 py-1 rounded-xl">
-                      Expediente Clínico
-                    </span>
+                  {/* Right: Quick actions for Doctor */}
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('consultas')}
+                      className="px-3.5 py-2 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200 text-xs font-bold rounded-xl transition-all shadow-2xs flex items-center space-x-1.5"
+                    >
+                      <Calendar size={14} />
+                      <span>Agendar Cita</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('recetas')}
+                      className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition-all shadow-2xs flex items-center space-x-1.5"
+                    >
+                      <Pill size={14} />
+                      <span>Nueva Receta</span>
+                    </button>
                   </div>
                 </div>
 
-                {/* 2. Menús del Paciente (Pestañas Internas que solicitó el usuario) */}
+                {/* 2. Menús del Paciente (Subnavegación unificada, moderna y sin colores discordantes) */}
                 <div className="border-t border-slate-100 bg-slate-50/80 p-1 sm:p-1.5 overflow-x-auto scrollbar-thin">
                   <div className="flex items-center gap-1.5 min-w-max">
                     <button
                       type="button"
                       onClick={() => setActiveSection('generales')}
-                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
                         activeSection === 'generales'
-                          ? 'bg-[#0077b6] text-white shadow-xs font-black'
-                          : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-900 border border-slate-200/70'
+                          ? 'bg-[#00b4d8] text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80'
                       }`}
                     >
                       <User size={15} className={activeSection === 'generales' ? 'text-white' : 'text-cyan-700'} />
@@ -870,10 +998,10 @@ export function App() {
                     <button
                       type="button"
                       onClick={() => setActiveSection('presupuestos')}
-                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
                         activeSection === 'presupuestos'
                           ? 'bg-[#00b4d8] text-white shadow-xs font-black'
-                          : 'text-slate-700 bg-white hover:bg-cyan-50 hover:text-cyan-800 border border-slate-200/70'
+                          : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80'
                       }`}
                     >
                       <Wallet size={15} className={activeSection === 'presupuestos' ? 'text-white' : 'text-teal-600'} />
@@ -883,10 +1011,10 @@ export function App() {
                     <button
                       type="button"
                       onClick={() => setActiveSection('recetas')}
-                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
                         activeSection === 'recetas'
-                          ? 'bg-emerald-600 text-white shadow-xs font-black'
-                          : 'text-slate-700 bg-white hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200/70'
+                          ? 'bg-[#00b4d8] text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80'
                       }`}
                     >
                       <Pill size={15} className={activeSection === 'recetas' ? 'text-white' : 'text-emerald-600'} />
@@ -896,10 +1024,10 @@ export function App() {
                     <button
                       type="button"
                       onClick={() => setActiveSection('antecedentes')}
-                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
                         activeSection === 'antecedentes'
-                          ? 'bg-purple-600 text-white shadow-xs font-black'
-                          : 'text-slate-700 bg-white hover:bg-purple-50 hover:text-purple-800 border border-slate-200/70'
+                          ? 'bg-[#00b4d8] text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80'
                       }`}
                     >
                       <Clipboard size={15} className={activeSection === 'antecedentes' ? 'text-white' : 'text-purple-600'} />
@@ -909,10 +1037,10 @@ export function App() {
                     <button
                       type="button"
                       onClick={() => setActiveSection('pagos')}
-                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
                         activeSection === 'pagos'
-                          ? 'bg-teal-600 text-white shadow-xs font-black'
-                          : 'text-slate-700 bg-white hover:bg-teal-50 hover:text-teal-800 border border-slate-200/70'
+                          ? 'bg-[#00b4d8] text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80'
                       }`}
                     >
                       <Banknote size={15} className={activeSection === 'pagos' ? 'text-white' : 'text-teal-600'} />
@@ -922,10 +1050,10 @@ export function App() {
                     <button
                       type="button"
                       onClick={() => setActiveSection('notas')}
-                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      className={`flex items-center space-x-1.5 sm:space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
                         activeSection === 'notas'
-                          ? 'bg-slate-700 text-white shadow-xs font-black'
-                          : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-800 border border-slate-200/70'
+                          ? 'bg-[#00b4d8] text-white shadow-xs font-black'
+                          : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80'
                       }`}
                     >
                       <MessageSquare size={15} className={activeSection === 'notas' ? 'text-white' : 'text-slate-600'} />
