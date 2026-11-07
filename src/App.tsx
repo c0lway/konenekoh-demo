@@ -470,7 +470,7 @@ export function App() {
             </div>
           )}
 
-          {/* 1. CLÍNICA (Vistas Generales de Operación) */}
+          {/* 1. OPERACIÓN CLÍNICA */}
           <div className="space-y-1">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1 px-2.5">
               Operación Clínica
@@ -512,103 +512,36 @@ export function App() {
                 Hoy
               </span>
             </button>
-          </div>
-
-          {/* 2. EXPEDIENTE CLÍNICO (Sub-módulos del Paciente Seleccionado) */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between px-2.5 mb-1">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                Expediente Clínico
-              </h3>
-              {selectedPatient && (
-                <span className="text-[9px] font-bold text-cyan-700 truncate max-w-[90px]" title={selectedPatient.nombre}>
-                  {selectedPatient.nombre.split(' ')[0]}
-                </span>
-              )}
-            </div>
 
             <button
               type="button"
               onClick={() => {
-                setActiveSection('generales');
+                if (activeSection === 'dashboard' || activeSection === 'consultas') {
+                  setActiveSection('presupuestos');
+                }
                 setMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-bold rounded-xl transition-all text-left ${
-                activeSection === 'generales'
-                  ? 'bg-[#48cae4] text-slate-900 shadow-xs'
+              className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition-all text-left ${
+                activeSection !== 'dashboard' && activeSection !== 'consultas'
+                  ? 'bg-gradient-to-r from-[#0077b6] to-[#0096c7] text-white shadow-xs'
                   : 'text-slate-700 hover:bg-cyan-50 hover:text-cyan-800'
               }`}
             >
-              <User size={15} className="text-cyan-700" />
-              <span>Datos del Paciente</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setActiveSection('presupuestos');
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-bold rounded-xl transition-all text-left ${
-                activeSection === 'presupuestos'
-                  ? 'bg-[#48cae4] text-slate-900 shadow-xs ring-1 ring-cyan-400'
-                  : 'text-slate-700 hover:bg-cyan-50 hover:text-cyan-800'
-              }`}
-            >
-              <Wallet size={15} className="text-cyan-700" />
-              <span>Odontograma & Presupuesto</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setActiveSection('recetas');
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-bold rounded-xl transition-all text-left ${
-                activeSection === 'recetas'
-                  ? 'bg-emerald-500 text-white shadow-xs ring-1 ring-emerald-400'
-                  : 'text-slate-700 hover:bg-emerald-50 hover:text-emerald-800'
-              }`}
-            >
-              <Pill size={15} className={activeSection === 'recetas' ? 'text-white' : 'text-emerald-600'} />
-              <span>Recetas Médicas</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setActiveSection('antecedentes');
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-bold rounded-xl transition-all text-left ${
-                activeSection === 'antecedentes'
-                  ? 'bg-[#48cae4] text-slate-900 shadow-xs'
-                  : 'text-slate-700 hover:bg-cyan-50 hover:text-cyan-800'
-              }`}
-            >
-              <Clipboard size={15} className="text-cyan-700" />
-              <span>Historial Médico</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setActiveSection('pagos');
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-bold rounded-xl transition-all text-left ${
-                activeSection === 'pagos'
-                  ? 'bg-[#48cae4] text-slate-900 shadow-xs'
-                  : 'text-slate-700 hover:bg-cyan-50 hover:text-cyan-800'
-              }`}
-            >
-              <Banknote size={15} className="text-cyan-700" />
-              <span>Estado de Cuenta & Pagos</span>
+              <div className="flex items-center space-x-2.5">
+                <Users size={15} className={activeSection !== 'dashboard' && activeSection !== 'consultas' ? 'text-white' : 'text-cyan-700'} />
+                <span>Pacientes & Expedientes</span>
+              </div>
+              <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
+                activeSection !== 'dashboard' && activeSection !== 'consultas'
+                  ? 'bg-white/25 text-white'
+                  : 'bg-cyan-100 text-cyan-800'
+              }`}>
+                {patients.length}
+              </span>
             </button>
           </div>
 
-          {/* 3. ALMACÉN & CATÁLOGOS */}
+          {/* 2. ALMACÉN & CATÁLOGOS */}
           <div className="space-y-1">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1 px-2.5">
               Almacén & Catálogos
@@ -851,65 +784,213 @@ export function App() {
               }}
             />
           ) : selectedPatient ? (
-            <div>
-              {activeSection === 'generales' && (
-                <GeneralesModule
-                  patient={selectedPatient}
-                  locations={locations}
-                  onUpdatePatient={(upd) => {
-                    setPatients(patients.map(p => p.id === upd.id ? upd : p));
-                  }}
-                />
-              )}
+            <div className="space-y-4 animate-in fade-in">
+              {/* Header de Identificación del Paciente y Menú Interno de Pestañas */}
+              <div className="bg-white rounded-3xl border border-cyan-100 shadow-xs overflow-hidden">
+                {/* 1. Tarjeta Resumen del Paciente */}
+                <div className="p-3.5 sm:p-5 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-slate-50 via-cyan-50/25 to-white border-b border-cyan-100">
+                  <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+                    <div className="relative shrink-0">
+                      <img
+                        src={selectedPatient.foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200'}
+                        alt={selectedPatient.nombre}
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover ring-2 ring-emerald-400 shadow-2xs"
+                      />
+                      <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
+                    </div>
 
-              {activeSection === 'antecedentes' && (
-                <AntecedentesModule patient={selectedPatient} />
-              )}
+                    <div className="min-w-0">
+                      <div className="flex items-center space-x-2 flex-wrap">
+                        <h2 className="text-base sm:text-lg font-black text-slate-800 leading-tight">
+                          {selectedPatient.nombre}
+                        </h2>
+                        {isMinorPatient(selectedPatient.fecha_nacimiento) && (
+                          <span className="text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-lg flex items-center space-x-1">
+                            <span>👶 Menor de Edad</span>
+                          </span>
+                        )}
+                        {selectedPatient.location_codigo && (
+                          <span
+                            className="text-[10px] font-black px-2 py-0.5 rounded-lg"
+                            style={{
+                              backgroundColor: `${selectedPatient.location_color || '#0077b6'}15`,
+                              color: selectedPatient.location_color || '#0077b6'
+                            }}
+                          >
+                            📍 {selectedPatient.location_nombre || selectedPatient.location_codigo}
+                          </span>
+                        )}
+                      </div>
 
-              {activeSection === 'presupuestos' && (
-                <PresupuestosModule
-                  patient={selectedPatient}
-                  tratamientos={tratamientos}
-                  clinicaConfig={clinicaConfig}
-                  onRefreshAll={loadInitialData}
-                />
-              )}
+                      <div className="flex items-center space-x-3 text-xs text-slate-500 mt-1 flex-wrap">
+                        <span className="font-mono font-bold text-cyan-800 bg-cyan-100/70 px-2 py-0.5 rounded text-[11px]">
+                          {selectedPatient.expediente}
+                        </span>
+                        {selectedPatient.telefono && (
+                          <span className="flex items-center space-x-1">
+                            <Phone size={12} className="text-slate-400" />
+                            <span>{selectedPatient.telefono}</span>
+                          </span>
+                        )}
+                        {isMinorPatient(selectedPatient.fecha_nacimiento) && selectedPatient.padre_tutor && (
+                          <span className="text-[11px] text-amber-800 font-medium truncate max-w-xs sm:max-w-md">
+                            👨‍👧 Tutor: {selectedPatient.padre_tutor}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
 
-              {activeSection === 'recetas' && (
-                <RecetasModule
-                  patient={selectedPatient}
-                  clinicaConfig={clinicaConfig}
-                  locations={locations}
-                  onRefreshAll={loadInitialData}
-                />
-              )}
-
-              {activeSection === 'pagos' && (
-                <PagosModule patient={selectedPatient} />
-              )}
-
-              {activeSection === 'notas' && (
-                <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-4">
-                  <h3 className="text-base font-bold text-slate-800 flex items-center space-x-2">
-                    <MessageSquare size={18} className="text-cyan-600" />
-                    <span>Notas de Evolución Clínica</span>
-                  </h3>
-                  <textarea
-                    rows={4}
-                    placeholder="Escribe una nota clínica de seguimiento para esta sesión..."
-                    className="w-full text-xs p-3.5 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  />
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => alert('Nota clínica guardada en el expediente.')}
-                      className="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl shadow-sm"
-                    >
-                      Guardar Nota
-                    </button>
+                  <div className="hidden sm:flex items-center space-x-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 bg-slate-100 px-2.5 py-1 rounded-xl">
+                      Expediente Clínico
+                    </span>
                   </div>
                 </div>
-              )}
+
+                {/* 2. Menús del Paciente (Pestañas Internas que solicitó el usuario) */}
+                <div className="flex items-center overflow-x-auto p-1.5 bg-slate-50/70 border-t border-slate-100 gap-1.5 scrollbar-thin">
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection('generales')}
+                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      activeSection === 'generales'
+                        ? 'bg-[#0077b6] text-white shadow-xs'
+                        : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60'
+                    }`}
+                  >
+                    <User size={15} className={activeSection === 'generales' ? 'text-white' : 'text-cyan-700'} />
+                    <span>Datos Generales</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection('presupuestos')}
+                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      activeSection === 'presupuestos'
+                        ? 'bg-[#00b4d8] text-white shadow-xs'
+                        : 'text-slate-700 bg-white hover:bg-cyan-50 hover:text-cyan-800 border border-slate-200/60'
+                    }`}
+                  >
+                    <Wallet size={15} className={activeSection === 'presupuestos' ? 'text-white' : 'text-teal-600'} />
+                    <span>Odontograma & Presupuesto</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection('recetas')}
+                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      activeSection === 'recetas'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'text-slate-700 bg-white hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200/60'
+                    }`}
+                  >
+                    <Pill size={15} className={activeSection === 'recetas' ? 'text-white' : 'text-emerald-600'} />
+                    <span>Recetas Médicas</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection('antecedentes')}
+                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      activeSection === 'antecedentes'
+                        ? 'bg-purple-600 text-white shadow-xs'
+                        : 'text-slate-700 bg-white hover:bg-purple-50 hover:text-purple-800 border border-slate-200/60'
+                    }`}
+                  >
+                    <Clipboard size={15} className={activeSection === 'antecedentes' ? 'text-white' : 'text-purple-600'} />
+                    <span>Historial Médico</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection('pagos')}
+                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      activeSection === 'pagos'
+                        ? 'bg-teal-600 text-white shadow-xs'
+                        : 'text-slate-700 bg-white hover:bg-teal-50 hover:text-teal-800 border border-slate-200/60'
+                    }`}
+                  >
+                    <Banknote size={15} className={activeSection === 'pagos' ? 'text-white' : 'text-teal-600'} />
+                    <span>Estado de Cuenta & Pagos</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection('notas')}
+                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 shadow-2xs ${
+                      activeSection === 'notas'
+                        ? 'bg-slate-700 text-white shadow-xs'
+                        : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-800 border border-slate-200/60'
+                    }`}
+                  >
+                    <MessageSquare size={15} className={activeSection === 'notas' ? 'text-white' : 'text-slate-600'} />
+                    <span>Notas de Evolución</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Sub-módulo Activo del Paciente */}
+              <div>
+                {activeSection === 'generales' && (
+                  <GeneralesModule
+                    patient={selectedPatient}
+                    locations={locations}
+                    onUpdatePatient={(upd) => {
+                      setPatients(patients.map(p => p.id === upd.id ? upd : p));
+                    }}
+                  />
+                )}
+
+                {activeSection === 'antecedentes' && (
+                  <AntecedentesModule patient={selectedPatient} />
+                )}
+
+                {activeSection === 'presupuestos' && (
+                  <PresupuestosModule
+                    patient={selectedPatient}
+                    tratamientos={tratamientos}
+                    clinicaConfig={clinicaConfig}
+                    onRefreshAll={loadInitialData}
+                  />
+                )}
+
+                {activeSection === 'recetas' && (
+                  <RecetasModule
+                    patient={selectedPatient}
+                    clinicaConfig={clinicaConfig}
+                    locations={locations}
+                    onRefreshAll={loadInitialData}
+                  />
+                )}
+
+                {activeSection === 'pagos' && (
+                  <PagosModule patient={selectedPatient} />
+                )}
+
+                {activeSection === 'notas' && (
+                  <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-4">
+                    <h3 className="text-base font-bold text-slate-800 flex items-center space-x-2">
+                      <MessageSquare size={18} className="text-cyan-600" />
+                      <span>Notas de Evolución Clínica</span>
+                    </h3>
+                    <textarea
+                      rows={4}
+                      placeholder="Escribe una nota clínica de seguimiento para esta sesión..."
+                      className="w-full text-xs p-3.5 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => alert('Nota clínica guardada en el expediente.')}
+                        className="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl shadow-sm"
+                      >
+                        Guardar Nota
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className="bg-white rounded-3xl p-12 text-center text-slate-400">
